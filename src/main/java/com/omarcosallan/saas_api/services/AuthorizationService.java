@@ -1,5 +1,6 @@
 package com.omarcosallan.saas_api.services;
 
+import com.omarcosallan.saas_api.exceptions.UserNotFoundException;
 import com.omarcosallan.saas_api.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +17,6 @@ public class AuthorizationService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return repository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException(""));
+                .orElseThrow(UserNotFoundException::new);
     }
 }
