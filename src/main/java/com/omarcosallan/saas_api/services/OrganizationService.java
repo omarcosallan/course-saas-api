@@ -11,10 +11,10 @@ import com.omarcosallan.saas_api.repositories.OrganizationRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class OrganizationService {
@@ -25,6 +25,7 @@ public class OrganizationService {
     @Autowired
     private UserService userService;
 
+    @Transactional
     public CreateOrganizationResponseDTO createOrganization(@Valid CreateOrganizationRequestDTO body) {
         User currentUser = userService.authenticated();
 

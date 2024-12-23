@@ -13,7 +13,7 @@ public class SaaSException extends RuntimeException {
 
     public ProblemDetail toProblemDetail() {
         ProblemDetail pb = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        pb.setTitle("Fleetwise internal server error");
+        pb.setTitle("SaaS internal server error");
         return pb;
     }
 }

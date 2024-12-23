@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.omarcosallan.saas_api.domain.user.User;
+import com.omarcosallan.saas_api.exceptions.TokenValidationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,7 @@ public class TokenService {
                     .sign(algorithm);
             return token;
         } catch (JWTCreationException exception) {
-            throw new RuntimeException("Error while generating token", exception);
+            throw new TokenValidationException("Error while generating token:" + exception.getMessage());
         }
     }
 
@@ -37,7 +38,7 @@ public class TokenService {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.require(algorithm).withIssuer("saas-api").build().verify(token).getSubject();
         } catch (JWTVerificationException exception) {
-            return null;
+            throw new TokenValidationException("Invalid token: " + exception.getMessage());
         }
     }
 
