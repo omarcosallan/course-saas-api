@@ -6,7 +6,9 @@ import com.omarcosallan.saas_api.domain.member.Member;
 import com.omarcosallan.saas_api.domain.organization.Organization;
 import com.omarcosallan.saas_api.dto.CreateInviteRequestDTO;
 import com.omarcosallan.saas_api.dto.CreateInviteResponseDTO;
+import com.omarcosallan.saas_api.dto.InviteResponse;
 import com.omarcosallan.saas_api.exceptions.BadRequestException;
+import com.omarcosallan.saas_api.exceptions.InviteNotFoundException;
 import com.omarcosallan.saas_api.exceptions.UnauthorizedException;
 import com.omarcosallan.saas_api.repositories.InviteRepository;
 import jakarta.validation.Valid;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class InviteService {
@@ -63,5 +66,11 @@ public class InviteService {
         inviteRepository.save(invite);
 
         return new CreateInviteResponseDTO(invite.getId());
+    }
+
+    public InviteResponse getInvite(UUID inviteId) {
+        Invite invite = inviteRepository.findById(inviteId)
+                .orElseThrow(InviteNotFoundException::new);
+        return new InviteResponse(new InviteResponse.InviteDTO(invite));
     }
 }
