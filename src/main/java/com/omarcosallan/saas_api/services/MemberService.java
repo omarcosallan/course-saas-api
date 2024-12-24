@@ -4,10 +4,14 @@ import com.omarcosallan.saas_api.domain.enums.Role;
 import com.omarcosallan.saas_api.domain.member.Member;
 import com.omarcosallan.saas_api.dto.MemberResponseDTO;
 import com.omarcosallan.saas_api.dto.MembersResponseDTO;
+import com.omarcosallan.saas_api.dto.UpdateMemberRequestDTO;
+import com.omarcosallan.saas_api.exceptions.MemberNotFoundException;
 import com.omarcosallan.saas_api.exceptions.UnauthorizedException;
 import com.omarcosallan.saas_api.repositories.MemberRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -51,5 +55,22 @@ public class MemberService {
 
     public Optional<Member> findByUserIdAndOrganizationId(UUID transferToUserId, UUID organizationId) {
         return memberRepository.findByUserIdAndOrganizationId(transferToUserId, organizationId);
+    }
+
+    @Transactional
+    public void updateMember(String slug, UUID memberId, @Valid UpdateMemberRequestDTO body) {
+        Member member = getMember(slug);
+
+        boolean canUpdateUser = member.getRole() == Role.ADMIN;
+        if (!canUpdateUser) {
+            throw new UnauthorizedException("You're not allowed to update this member.");
+        }
+
+        Member updatingMember = memberRepository.findByIdAndOrganizationId(memberId, member.getOrganization().getId())
+                .orElseThrow(MemberNotFoundException::new);
+
+        updatingMember.setRole(body.role());
+
+        memberRepository.save(updatingMember);
     }
 }

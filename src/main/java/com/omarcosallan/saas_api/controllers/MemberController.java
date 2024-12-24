@@ -1,13 +1,14 @@
 package com.omarcosallan.saas_api.controllers;
 
 import com.omarcosallan.saas_api.dto.MembersResponseDTO;
+import com.omarcosallan.saas_api.dto.UpdateMemberRequestDTO;
 import com.omarcosallan.saas_api.services.MemberService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/organizations/{slug}/members")
@@ -20,5 +21,11 @@ public class MemberController {
     public ResponseEntity<MembersResponseDTO> getMembers(@PathVariable("slug") String slug) {
         MembersResponseDTO result = memberService.getMembers(slug);
         return ResponseEntity.ok(result);
+    }
+
+    @PutMapping(value = "/{memberId}")
+    public ResponseEntity<Void> updateMember(@PathVariable("slug") String slug, @PathVariable("memberId") UUID memberId, @Valid @RequestBody UpdateMemberRequestDTO body) {
+        memberService.updateMember(slug, memberId,body);
+        return ResponseEntity.noContent().build();
     }
 }
