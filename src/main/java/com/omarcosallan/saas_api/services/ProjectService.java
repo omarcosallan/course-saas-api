@@ -5,10 +5,7 @@ import com.omarcosallan.saas_api.domain.member.Member;
 import com.omarcosallan.saas_api.domain.organization.Organization;
 import com.omarcosallan.saas_api.domain.project.Project;
 import com.omarcosallan.saas_api.domain.user.User;
-import com.omarcosallan.saas_api.dto.CreateProjectRequestDTO;
-import com.omarcosallan.saas_api.dto.CreateProjectResponseDTO;
-import com.omarcosallan.saas_api.dto.ProjectResponseDTO;
-import com.omarcosallan.saas_api.dto.ProjectsResponseDTO;
+import com.omarcosallan.saas_api.dto.*;
 import com.omarcosallan.saas_api.exceptions.ProjectNotFoundException;
 import com.omarcosallan.saas_api.exceptions.UnauthorizedException;
 import com.omarcosallan.saas_api.repositories.ProjectRepository;
@@ -108,5 +105,27 @@ public class ProjectService {
         List<ProjectResponseDTO> projectsDTO = projects.stream().map(ProjectResponseDTO::new).collect(Collectors.toList());
 
         return new ProjectsResponseDTO(projectsDTO);
+    }
+
+    @Transactional
+    public void updateProject(String slug, UUID projectId, UpdateProjectRequestDTO body) {
+        Member member = organizationService.getMember(slug);
+
+        Optional<Project> project = projectRepository.findByIdAndOrganizationId(projectId, member.getOrganization().getId());
+
+        if (project.isEmpty()) {
+            throw new ProjectNotFoundException();
+        }
+
+        boolean canUpdateProjects = member.getRole() == Role.MEMBER || member.getRole() == Role.ADMIN;
+        if (!canUpdateProjects) {
+            throw new UnauthorizedException("You're not allowed to update this project.");
+        }
+
+        Project updatingProject = project.get();
+        updatingProject.setName(body.name());
+        updatingProject.setDescription(body.description());
+
+        projectRepository.save(updatingProject);
     }
 }

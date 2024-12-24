@@ -1,9 +1,6 @@
 package com.omarcosallan.saas_api.controllers;
 
-import com.omarcosallan.saas_api.dto.CreateProjectRequestDTO;
-import com.omarcosallan.saas_api.dto.CreateProjectResponseDTO;
-import com.omarcosallan.saas_api.dto.ProjectResponseDTO;
-import com.omarcosallan.saas_api.dto.ProjectsResponseDTO;
+import com.omarcosallan.saas_api.dto.*;
 import com.omarcosallan.saas_api.services.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,4 +40,11 @@ public class ProjectController {
         ProjectsResponseDTO result = projectService.getProjects(slug);
         return ResponseEntity.ok(result);
     }
+
+    @PutMapping(value = "/{projectId}")
+    public ResponseEntity<Void> updateProject(@PathVariable("slug") String slug, @PathVariable("projectId") UUID projectId, @Valid @RequestBody UpdateProjectRequestDTO body) {
+        projectService.updateProject(slug, projectId, body);
+        return ResponseEntity.noContent().build();
+    }
+
 }
