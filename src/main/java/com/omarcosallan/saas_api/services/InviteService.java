@@ -113,4 +113,18 @@ public class InviteService {
 
         inviteRepository.deleteById(invite.getId());
     }
+
+    @Transactional
+    public void rejectInvite(UUID inviteId) {
+        User user = userService.authenticated();
+
+        Invite invite = inviteRepository.findById(inviteId)
+                .orElseThrow(() -> new BadRequestException("Invite not found or expired."));
+
+        if (!invite.getEmail().equals(user.getEmail())) {
+            throw new BadRequestException("This invite belongs to another user.");
+        }
+
+        inviteRepository.deleteById(invite.getId());
+    }
 }

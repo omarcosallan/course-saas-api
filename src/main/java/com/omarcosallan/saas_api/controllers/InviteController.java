@@ -42,4 +42,10 @@ public class InviteController {
         inviteService.acceptInvite(inviteId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping(value = "/invites/{inviteId}/reject")
+    public ResponseEntity<Void> rejectInvite(@PathVariable("inviteId") UUID inviteId) {
+        inviteService.rejectInvite(inviteId);
+        return ResponseEntity.noContent().build();
+    }
 }
