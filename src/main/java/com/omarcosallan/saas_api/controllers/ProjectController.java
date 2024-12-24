@@ -2,6 +2,7 @@ package com.omarcosallan.saas_api.controllers;
 
 import com.omarcosallan.saas_api.dto.CreateProjectRequestDTO;
 import com.omarcosallan.saas_api.dto.CreateProjectResponseDTO;
+import com.omarcosallan.saas_api.dto.ProjectResponseDTO;
 import com.omarcosallan.saas_api.services.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,5 +28,11 @@ public class ProjectController {
     public ResponseEntity<Void> deleteProject(@PathVariable("slug") String slug, @PathVariable("projectId") UUID projectId) {
         projectService.deleteProject(slug, projectId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping(value = "/{projectSlug}")
+    public ResponseEntity<ProjectResponseDTO> getProject(@PathVariable("slug") String slug, @PathVariable("projectSlug") String projectSlug) {
+        ProjectResponseDTO result = projectService.getProject(slug, projectSlug);
+        return ResponseEntity.ok(result);
     }
 }

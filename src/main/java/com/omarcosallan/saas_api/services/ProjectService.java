@@ -7,6 +7,7 @@ import com.omarcosallan.saas_api.domain.project.Project;
 import com.omarcosallan.saas_api.domain.user.User;
 import com.omarcosallan.saas_api.dto.CreateProjectRequestDTO;
 import com.omarcosallan.saas_api.dto.CreateProjectResponseDTO;
+import com.omarcosallan.saas_api.dto.ProjectResponseDTO;
 import com.omarcosallan.saas_api.exceptions.ProjectNotFoundException;
 import com.omarcosallan.saas_api.exceptions.UnauthorizedException;
 import com.omarcosallan.saas_api.repositories.ProjectRepository;
@@ -35,7 +36,8 @@ public class ProjectService {
     public CreateProjectResponseDTO createProject(String slug, @Valid CreateProjectRequestDTO body) {
         Member member = organizationService.getMember(slug);
 
-        if (!(member.getRole() == Role.MEMBER || member.getRole() == Role.ADMIN)) {
+        boolean canCreateProject = member.getRole() == Role.MEMBER || member.getRole() == Role.ADMIN;
+        if (!canCreateProject) {
             throw new UnauthorizedException("You're not allowed to create new projects.");
         }
 
@@ -53,6 +55,7 @@ public class ProjectService {
         return new CreateProjectResponseDTO(project.getId());
     }
 
+    @Transactional
     public void deleteProject(String slug, UUID projectId) {
         Member member = organizationService.getMember(slug);
         Organization org = member.getOrganization();
@@ -63,11 +66,29 @@ public class ProjectService {
             throw new ProjectNotFoundException();
         }
 
-        if (!(member.getRole() == Role.ADMIN
-                || (member.getRole() == Role.MEMBER && project.get().getOwner().getId().equals(member.getId())))) {
+        boolean canDeleteProject = member.getRole() == Role.ADMIN
+                || (member.getRole() == Role.MEMBER && project.get().getOwner().getId().equals(member.getId()));
+        if (!canDeleteProject) {
             throw new UnauthorizedException("You're not allowed to delete this project.");
         }
 
         projectRepository.deleteById(projectId);
+    }
+
+    public ProjectResponseDTO getProject(String slug, String projectSlug) {
+        Member member = organizationService.getMember(slug);
+
+        boolean canGetProject = member.getRole() == Role.MEMBER || member.getRole() == Role.ADMIN;
+        if (!canGetProject) {
+            throw new UnauthorizedException("You're not allowed to see this projects.");
+        }
+
+        Optional<Project> project = projectRepository.findBySlugAndOrganizationId(projectSlug, member.getOrganization().getId());
+
+        if (project.isEmpty()) {
+            throw new ProjectNotFoundException();
+        }
+
+        return new ProjectResponseDTO(project.get());
     }
 }
