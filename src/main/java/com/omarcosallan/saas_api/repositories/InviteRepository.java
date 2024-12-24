@@ -11,4 +11,6 @@ public interface InviteRepository extends JpaRepository<Invite, UUID> {
     Optional<Invite> findByEmailAndOrganizationId(String email, UUID id);
 
     List<Invite> findByOrganizationIdOrderByCreatedAtDesc(UUID id);
+
+    Optional<Invite> findByIdAndOrganizationId(UUID inviteId, UUID id);
 }

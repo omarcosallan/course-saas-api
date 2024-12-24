@@ -127,4 +127,19 @@ public class InviteService {
 
         inviteRepository.deleteById(invite.getId());
     }
+
+    @Transactional
+    public void revokeInvite(String slug, UUID inviteId) {
+        Member member = memberService.getMember(slug);
+
+        boolean canDeleteInvite = member.getRole() == Role.ADMIN;
+        if (!canDeleteInvite) {
+            throw new UnauthorizedException("You're not allowed to delete an invite.");
+        }
+
+        Invite invite = inviteRepository.findByIdAndOrganizationId(inviteId, member.getOrganization().getId())
+                .orElseThrow(InviteNotFoundException::new);
+
+        inviteRepository.deleteById(inviteId);
+    }
 }
