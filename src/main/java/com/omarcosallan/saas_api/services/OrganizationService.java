@@ -7,7 +7,6 @@ import com.omarcosallan.saas_api.domain.user.User;
 import com.omarcosallan.saas_api.dto.*;
 import com.omarcosallan.saas_api.exceptions.OrganizationDomainAlreadyExistsException;
 import com.omarcosallan.saas_api.exceptions.UnauthorizedException;
-import com.omarcosallan.saas_api.repositories.MemberRepository;
 import com.omarcosallan.saas_api.repositories.OrganizationRepository;
 import com.omarcosallan.saas_api.utils.SlugUtils;
 import jakarta.validation.Valid;
@@ -15,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.Normalizer;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +27,7 @@ public class OrganizationService {
     private UserService userService;
 
     @Autowired
-    private MemberRepository memberRepository;
+    private MemberService memberService;
 
     @Transactional
     public CreateOrganizationResponseDTO createOrganization(@Valid CreateOrganizationRequestDTO body) {
@@ -59,13 +57,8 @@ public class OrganizationService {
         return new CreateOrganizationResponseDTO(organization.getId());
     }
 
-    public Member getMember(String slug) {
-        return memberRepository.findByUserIdAndOrganizationSlug(userService.authenticated().getId(), slug)
-                .orElseThrow(() -> new UnauthorizedException("You're not a member of this organization."));
-    }
-
     public OrganizationDTO getOrganization(String slug) {
-        Member member = getMember(slug);
+        Member member = memberService.getMember(slug);
         return new OrganizationDTO(member.getOrganization());
     }
 
@@ -75,7 +68,7 @@ public class OrganizationService {
 
     @Transactional
     public void updateOrganization(String slug, UpdateOrganizationRequestDTO body) {
-        Member member = getMember(slug);
+        Member member = memberService.getMember(slug);
 
         if (member.getRole() != Role.ADMIN) {
             throw new UnauthorizedException("You're not allowed to update this organization.");
@@ -100,7 +93,7 @@ public class OrganizationService {
 
     @Transactional
     public void shutdownOrganization(String slug) {
-        Member member = getMember(slug);
+        Member member = memberService.getMember(slug);
 
         if (member.getRole() != Role.ADMIN) {
             throw new UnauthorizedException("You're not allowed to delete this organization.");
@@ -113,14 +106,14 @@ public class OrganizationService {
 
     @Transactional
     public void transferOrganization(String slug, @Valid TransferOrganizationRequestDTO body) {
-        Member member = getMember(slug);
+        Member member = memberService.getMember(slug);
         Organization organization = member.getOrganization();
 
         if (member.getRole() != Role.ADMIN || !organization.getOwner().getId().equals(member.getUser().getId())) {
             throw new UnauthorizedException("You're not allowed to transfer this organization ownership.");
         }
 
-        Optional<Member> transferMembership = memberRepository.findByUserIdAndOrganizationId(body.transferToUserId(), organization.getId());
+        Optional<Member> transferMembership = memberService.findByUserIdAndOrganizationId(body.transferToUserId(), organization.getId());
 
         if (transferMembership.isEmpty()) {
             throw new UnauthorizedException("You're not a member of this organization.");

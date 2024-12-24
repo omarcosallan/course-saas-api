@@ -27,14 +27,14 @@ public class ProjectService {
     private ProjectRepository projectRepository;
 
     @Autowired
-    private OrganizationService organizationService;
+    private MemberService memberService;
 
     @Autowired
     private UserService userService;
 
     @Transactional
     public CreateProjectResponseDTO createProject(String slug, @Valid CreateProjectRequestDTO body) {
-        Member member = organizationService.getMember(slug);
+        Member member = memberService.getMember(slug);
 
         boolean canCreateProject = member.getRole() == Role.MEMBER || member.getRole() == Role.ADMIN;
         if (!canCreateProject) {
@@ -57,7 +57,7 @@ public class ProjectService {
 
     @Transactional
     public void deleteProject(String slug, UUID projectId) {
-        Member member = organizationService.getMember(slug);
+        Member member = memberService.getMember(slug);
         Organization org = member.getOrganization();
 
         Optional<Project> project = projectRepository.findByIdAndOrganizationId(projectId, org.getId());
@@ -76,7 +76,7 @@ public class ProjectService {
     }
 
     public ProjectResponseDTO getProject(String slug, String projectSlug) {
-        Member member = organizationService.getMember(slug);
+        Member member = memberService.getMember(slug);
 
         boolean canGetProject = member.getRole() == Role.MEMBER || member.getRole() == Role.ADMIN;
         if (!canGetProject) {
@@ -93,7 +93,7 @@ public class ProjectService {
     }
 
     public ProjectsResponseDTO getProjects(String slug) {
-        Member member = organizationService.getMember(slug);
+        Member member = memberService.getMember(slug);
 
         boolean canGetProjects = member.getRole() == Role.MEMBER || member.getRole() == Role.ADMIN;
         if (!canGetProjects) {
@@ -109,7 +109,7 @@ public class ProjectService {
 
     @Transactional
     public void updateProject(String slug, UUID projectId, UpdateProjectRequestDTO body) {
-        Member member = organizationService.getMember(slug);
+        Member member = memberService.getMember(slug);
 
         Optional<Project> project = projectRepository.findByIdAndOrganizationId(projectId, member.getOrganization().getId());
 
