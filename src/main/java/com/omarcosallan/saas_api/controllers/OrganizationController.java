@@ -46,4 +46,10 @@ public class OrganizationController {
         organizationService.shutdownOrganization(slug);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    @PatchMapping(value = "/{slug}/owner")
+    public ResponseEntity<Void> transferOrganization(@PathVariable String slug, @Valid @RequestBody TransferOrganizationRequestDTO body) {
+        organizationService.transferOrganization(slug, body);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

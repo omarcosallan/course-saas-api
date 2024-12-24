@@ -110,6 +110,27 @@ public class OrganizationService {
         organizationRepository.deleteById(organization.getId());
     }
 
+    @Transactional
+    public void transferOrganization(String slug, @Valid TransferOrganizationRequestDTO body) {
+        Member member = getMember(slug);
+        Organization organization = member.getOrganization();
+
+        if (member.getRole() != Role.ADMIN || !organization.getOwner().getId().equals(member.getUser().getId())) {
+            throw new UnauthorizedException("You're not allowed to transfer this organization ownership.");
+        }
+
+        Optional<Member> transferMembership = memberRepository.findByUserIdAndOrganizationId(body.transferToUserId(), organization.getId());
+
+        if (transferMembership.isEmpty()) {
+            throw new UnauthorizedException("You're not a member of this organization.");
+        }
+
+        transferMembership.get().setRole(Role.ADMIN);
+        organization.setOwner(transferMembership.get().getUser());
+
+        organizationRepository.save(organization);
+    }
+
     private String createSlug(String text) {
         return Normalizer.normalize(text, Normalizer.Form.NFD).replaceAll("\\p{M}", "").replaceAll("[^\\w\\s]", "").trim().replaceAll("\\s+", "-").toLowerCase();
     }
