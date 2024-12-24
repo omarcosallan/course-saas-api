@@ -7,6 +7,7 @@ import com.omarcosallan.saas_api.domain.organization.Organization;
 import com.omarcosallan.saas_api.dto.CreateInviteRequestDTO;
 import com.omarcosallan.saas_api.dto.CreateInviteResponseDTO;
 import com.omarcosallan.saas_api.dto.InviteResponse;
+import com.omarcosallan.saas_api.dto.InvitesResponse;
 import com.omarcosallan.saas_api.exceptions.BadRequestException;
 import com.omarcosallan.saas_api.exceptions.InviteNotFoundException;
 import com.omarcosallan.saas_api.exceptions.UnauthorizedException;
@@ -16,8 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class InviteService {
@@ -72,5 +75,22 @@ public class InviteService {
         Invite invite = inviteRepository.findById(inviteId)
                 .orElseThrow(InviteNotFoundException::new);
         return new InviteResponse(new InviteResponse.InviteDTO(invite));
+    }
+
+    public InvitesResponse getInvites(String slug) {
+        Member member = memberService.getMember(slug);
+
+        boolean canGetInvite = member.getRole() == Role.ADMIN;
+        if (!canGetInvite) {
+            throw new UnauthorizedException("You're not allowed to get organization invites.");
+        }
+
+        List<Invite> invites = inviteRepository.findByOrganizationIdOrderByCreatedAtDesc(member.getOrganization().getId());
+
+        return new InvitesResponse(
+                invites.stream()
+                        .map(InvitesResponse.InviteMinDTO::new)
+                        .collect(Collectors.toList())
+        );
     }
 }

@@ -3,6 +3,7 @@ package com.omarcosallan.saas_api.controllers;
 import com.omarcosallan.saas_api.dto.CreateInviteRequestDTO;
 import com.omarcosallan.saas_api.dto.CreateInviteResponseDTO;
 import com.omarcosallan.saas_api.dto.InviteResponse;
+import com.omarcosallan.saas_api.dto.InvitesResponse;
 import com.omarcosallan.saas_api.services.InviteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,12 @@ public class InviteController {
     @GetMapping(value = "/invites/{inviteId}")
     public ResponseEntity<InviteResponse> getInvite(@PathVariable("inviteId") UUID inviteId) {
         InviteResponse result = inviteService.getInvite(inviteId);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping(value = "/organizations/{slug}/invites")
+    public ResponseEntity<InvitesResponse> getInvites(@PathVariable("slug") String slug) {
+        InvitesResponse result = inviteService.getInvites(slug);
         return ResponseEntity.ok(result);
     }
 }
