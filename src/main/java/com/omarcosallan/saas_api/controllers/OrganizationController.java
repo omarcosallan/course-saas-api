@@ -1,12 +1,10 @@
 package com.omarcosallan.saas_api.controllers;
 
-import com.omarcosallan.saas_api.dto.CreateOrganizationRequestDTO;
-import com.omarcosallan.saas_api.dto.CreateOrganizationResponseDTO;
-import com.omarcosallan.saas_api.dto.OrganizationDTO;
-import com.omarcosallan.saas_api.dto.OrganizationMinDTO;
+import com.omarcosallan.saas_api.dto.*;
 import com.omarcosallan.saas_api.services.OrganizationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,9 +29,15 @@ public class OrganizationController {
         return ResponseEntity.ok(org);
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<OrganizationMinDTO>> getOrganizations() {
         List<OrganizationMinDTO> orgs = organizationService.getOrganizations();
         return ResponseEntity.ok(orgs);
+    }
+
+    @PostMapping(value = "/{slug}")
+    public ResponseEntity<Void> updateOrganization(@PathVariable String slug, @Valid @RequestBody UpdateOrganizationRequestDTO body) {
+        organizationService.updateOrganization(slug, body);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

@@ -4,10 +4,7 @@ import com.omarcosallan.saas_api.domain.enums.Role;
 import com.omarcosallan.saas_api.domain.member.Member;
 import com.omarcosallan.saas_api.domain.organization.Organization;
 import com.omarcosallan.saas_api.domain.user.User;
-import com.omarcosallan.saas_api.dto.CreateOrganizationRequestDTO;
-import com.omarcosallan.saas_api.dto.CreateOrganizationResponseDTO;
-import com.omarcosallan.saas_api.dto.OrganizationDTO;
-import com.omarcosallan.saas_api.dto.OrganizationMinDTO;
+import com.omarcosallan.saas_api.dto.*;
 import com.omarcosallan.saas_api.exceptions.OrganizationDomainAlreadyExistsException;
 import com.omarcosallan.saas_api.exceptions.UnauthorizedException;
 import com.omarcosallan.saas_api.repositories.MemberRepository;
@@ -61,15 +58,43 @@ public class OrganizationService {
         return new CreateOrganizationResponseDTO(organization.getId());
     }
 
+    public Member getMember(String slug) {
+        return memberRepository.findByUserIdAndOrganizationSlug(userService.authenticated().getId(), slug)
+                .orElseThrow(() -> new UnauthorizedException("You're not a member of this organization."));
+    }
+
     public OrganizationDTO getOrganization(String slug) {
-        Member member = memberRepository.findByUserIdAndOrganizationSlug(userService.authenticated().getId(), slug)
-                .orElseThrow(UnauthorizedException::new);
+        Member member = getMember(slug);
         return new OrganizationDTO(member.getOrganization());
     }
 
     public List<OrganizationMinDTO> getOrganizations() {
-        List<OrganizationMinDTO> orgs = organizationRepository.findOrganizationsWithUserRoles(userService.authenticated().getId());
-        return orgs;
+        return organizationRepository.findOrganizationsWithUserRoles(userService.authenticated().getId());
+    }
+
+    @Transactional
+    public void updateOrganization(String slug, UpdateOrganizationRequestDTO body) {
+        Member member = getMember(slug);
+
+        if (member.getRole() != Role.ADMIN) {
+            throw new UnauthorizedException("You're not allowed to update this organization.");
+        }
+
+        Organization organization = member.getOrganization();
+
+        if (body.domain() != null) {
+            Optional<Organization> organizationByDomain = organizationRepository.findFirstByDomainAndIdNot(body.domain(), organization.getId());
+
+            if (organizationByDomain.isPresent()) {
+                throw new OrganizationDomainAlreadyExistsException();
+            }
+        }
+
+        organization.setName(body.name());
+        organization.setDomain(body.domain());
+        organization.setShouldAttachUsersByDomain(body.shouldAttachUsersByDomain());
+
+        organizationRepository.save(organization);
     }
 
     private String createSlug(String text) {

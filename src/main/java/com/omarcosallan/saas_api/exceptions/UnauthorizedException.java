@@ -5,11 +5,17 @@ import org.springframework.http.ProblemDetail;
 
 public class UnauthorizedException extends SaaSException {
 
+    private String message;
+
+    public UnauthorizedException(String message) {
+        this.message = message;
+    }
+
     @Override
     public ProblemDetail toProblemDetail() {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
 
-        problemDetail.setTitle("You're not a member of this organization.");
+        problemDetail.setTitle(message);
 
         return problemDetail;
     }
