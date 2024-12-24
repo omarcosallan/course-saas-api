@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping(value = "/organizations/{slug}/projects")
 public class ProjectController {
@@ -19,5 +21,11 @@ public class ProjectController {
     public ResponseEntity<CreateProjectResponseDTO> createProject(@PathVariable("slug") String slug, @Valid @RequestBody CreateProjectRequestDTO body) {
         CreateProjectResponseDTO result = projectService.createProject(slug, body);
         return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping(value = "/{projectId}")
+    public ResponseEntity<Void> deleteProject(@PathVariable("slug") String slug, @PathVariable("projectId") UUID projectId) {
+        projectService.deleteProject(slug, projectId);
+        return ResponseEntity.noContent().build();
     }
 }
