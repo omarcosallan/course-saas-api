@@ -5,10 +5,7 @@ import com.omarcosallan.saas_api.domain.invite.Invite;
 import com.omarcosallan.saas_api.domain.member.Member;
 import com.omarcosallan.saas_api.domain.organization.Organization;
 import com.omarcosallan.saas_api.domain.user.User;
-import com.omarcosallan.saas_api.dto.CreateInviteRequestDTO;
-import com.omarcosallan.saas_api.dto.CreateInviteResponseDTO;
-import com.omarcosallan.saas_api.dto.InviteResponse;
-import com.omarcosallan.saas_api.dto.InvitesResponse;
+import com.omarcosallan.saas_api.dto.*;
 import com.omarcosallan.saas_api.exceptions.BadRequestException;
 import com.omarcosallan.saas_api.exceptions.InviteNotFoundException;
 import com.omarcosallan.saas_api.exceptions.UnauthorizedException;
@@ -75,13 +72,13 @@ public class InviteService {
         return new CreateInviteResponseDTO(invite.getId());
     }
 
-    public InviteResponse getInvite(UUID inviteId) {
+    public InviteResponseDTO getInvite(UUID inviteId) {
         Invite invite = inviteRepository.findById(inviteId)
                 .orElseThrow(InviteNotFoundException::new);
-        return new InviteResponse(new InviteResponse.InviteDTO(invite));
+        return new InviteResponseDTO(new InviteResponseDTO.InviteDTO(invite));
     }
 
-    public InvitesResponse getInvites(String slug) {
+    public InvitesMinResponseDTO getInvites(String slug) {
         Member member = memberService.getMember(slug);
 
         boolean canGetInvite = member.getRole() == Role.ADMIN;
@@ -91,9 +88,9 @@ public class InviteService {
 
         List<Invite> invites = inviteRepository.findByOrganizationIdOrderByCreatedAtDesc(member.getOrganization().getId());
 
-        return new InvitesResponse(
+        return new InvitesMinResponseDTO(
                 invites.stream()
-                        .map(InvitesResponse.InviteMinDTO::new)
+                        .map(InvitesMinResponseDTO.InviteMinDTO::new)
                         .collect(Collectors.toList())
         );
     }
@@ -141,5 +138,16 @@ public class InviteService {
                 .orElseThrow(InviteNotFoundException::new);
 
         inviteRepository.deleteById(inviteId);
+    }
+
+    public InvitesResponseDTO getPendingInvites() {
+        User user = userService.authenticated();
+
+        List<Invite> invites = inviteRepository.findByEmail(user.getEmail());
+
+        return new InvitesResponseDTO(
+                invites.stream()
+                        .map(InvitesResponseDTO.InviteDTO::new)
+                        .collect(Collectors.toList()));
     }
 }

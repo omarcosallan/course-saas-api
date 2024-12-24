@@ -7,18 +7,20 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public record InvitesResponse(List<InviteMinDTO> invites) {
-    public record InviteMinDTO(UUID id,
+public record InvitesResponseDTO(List<InviteDTO> invites) {
+    public record InviteDTO(UUID id,
                             Role role,
                             String email,
                             LocalDateTime createdAt,
+                            OrganizationNameDTO organization,
                             Author author) {
-        public InviteMinDTO(Invite invite) {
+        public InviteDTO(Invite invite) {
             this(
                     invite.getId(),
                     invite.getRole(),
                     invite.getEmail(),
                     invite.getCreatedAt(),
+                    new OrganizationNameDTO(invite.getOrganization().getName()),
                     new Author(invite.getAuthor())
             );
         }

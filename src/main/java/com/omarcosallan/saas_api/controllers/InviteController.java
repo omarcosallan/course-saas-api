@@ -1,9 +1,6 @@
 package com.omarcosallan.saas_api.controllers;
 
-import com.omarcosallan.saas_api.dto.CreateInviteRequestDTO;
-import com.omarcosallan.saas_api.dto.CreateInviteResponseDTO;
-import com.omarcosallan.saas_api.dto.InviteResponse;
-import com.omarcosallan.saas_api.dto.InvitesResponse;
+import com.omarcosallan.saas_api.dto.*;
 import com.omarcosallan.saas_api.services.InviteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +23,14 @@ public class InviteController {
     }
 
     @GetMapping(value = "/invites/{inviteId}")
-    public ResponseEntity<InviteResponse> getInvite(@PathVariable("inviteId") UUID inviteId) {
-        InviteResponse result = inviteService.getInvite(inviteId);
+    public ResponseEntity<InviteResponseDTO> getInvite(@PathVariable("inviteId") UUID inviteId) {
+        InviteResponseDTO result = inviteService.getInvite(inviteId);
         return ResponseEntity.ok(result);
     }
 
     @GetMapping(value = "/organizations/{slug}/invites")
-    public ResponseEntity<InvitesResponse> getInvites(@PathVariable("slug") String slug) {
-        InvitesResponse result = inviteService.getInvites(slug);
+    public ResponseEntity<InvitesMinResponseDTO> getInvites(@PathVariable("slug") String slug) {
+        InvitesMinResponseDTO result = inviteService.getInvites(slug);
         return ResponseEntity.ok(result);
     }
 
@@ -53,5 +50,11 @@ public class InviteController {
     public ResponseEntity<Void> revokeInvite(@PathVariable("slug") String slug, @PathVariable("inviteId") UUID inviteId) {
         inviteService.revokeInvite(slug, inviteId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping(value = "/pending-invites")
+    public ResponseEntity<InvitesResponseDTO> getPendingInvites() {
+        InvitesResponseDTO result = inviteService.getPendingInvites();
+        return ResponseEntity.ok(result);
     }
 }
