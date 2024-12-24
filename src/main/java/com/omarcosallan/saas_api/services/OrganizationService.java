@@ -97,6 +97,19 @@ public class OrganizationService {
         organizationRepository.save(organization);
     }
 
+    @Transactional
+    public void shutdownOrganization(String slug) {
+        Member member = getMember(slug);
+
+        if (member.getRole() != Role.ADMIN) {
+            throw new UnauthorizedException("You're not allowed to delete this organization.");
+        }
+
+        Organization organization = member.getOrganization();
+
+        organizationRepository.deleteById(organization.getId());
+    }
+
     private String createSlug(String text) {
         return Normalizer.normalize(text, Normalizer.Form.NFD).replaceAll("\\p{M}", "").replaceAll("[^\\w\\s]", "").trim().replaceAll("\\s+", "-").toLowerCase();
     }

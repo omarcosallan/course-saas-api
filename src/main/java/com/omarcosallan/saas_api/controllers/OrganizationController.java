@@ -35,9 +35,15 @@ public class OrganizationController {
         return ResponseEntity.ok(orgs);
     }
 
-    @PostMapping(value = "/{slug}")
+    @PutMapping(value = "/{slug}")
     public ResponseEntity<Void> updateOrganization(@PathVariable String slug, @Valid @RequestBody UpdateOrganizationRequestDTO body) {
         organizationService.updateOrganization(slug, body);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @DeleteMapping(value = "/{slug}")
+    public ResponseEntity<Void> shutdownOrganization(@PathVariable String slug) {
+        organizationService.shutdownOrganization(slug);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
