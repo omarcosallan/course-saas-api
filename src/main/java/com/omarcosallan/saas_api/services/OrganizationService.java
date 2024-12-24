@@ -9,6 +9,7 @@ import com.omarcosallan.saas_api.exceptions.OrganizationDomainAlreadyExistsExcep
 import com.omarcosallan.saas_api.exceptions.UnauthorizedException;
 import com.omarcosallan.saas_api.repositories.MemberRepository;
 import com.omarcosallan.saas_api.repositories.OrganizationRepository;
+import com.omarcosallan.saas_api.utils.SlugUtils;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,7 +45,7 @@ public class OrganizationService {
 
         Organization organization = new Organization();
         organization.setName(body.name());
-        organization.setSlug(createSlug(body.name()));
+        organization.setSlug(SlugUtils.createSlug(body.name()));
         organization.setDomain(body.domain());
         organization.setShouldAttachUsersByDomain(body.shouldAttachUsersByDomain());
         organization.setOwner(currentUser);
@@ -129,9 +130,5 @@ public class OrganizationService {
         organization.setOwner(transferMembership.get().getUser());
 
         organizationRepository.save(organization);
-    }
-
-    private String createSlug(String text) {
-        return Normalizer.normalize(text, Normalizer.Form.NFD).replaceAll("\\p{M}", "").replaceAll("[^\\w\\s]", "").trim().replaceAll("\\s+", "-").toLowerCase();
     }
 }
