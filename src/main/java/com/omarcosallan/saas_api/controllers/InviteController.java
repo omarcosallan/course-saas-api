@@ -36,4 +36,10 @@ public class InviteController {
         InvitesResponse result = inviteService.getInvites(slug);
         return ResponseEntity.ok(result);
     }
+
+    @PostMapping(value = "/invites/{inviteId}/accept")
+    public ResponseEntity<Void> acceptInvite(@PathVariable("inviteId") UUID inviteId) {
+        inviteService.acceptInvite(inviteId);
+        return ResponseEntity.noContent().build();
+    }
 }

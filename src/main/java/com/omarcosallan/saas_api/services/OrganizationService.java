@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class OrganizationService {
@@ -63,7 +64,8 @@ public class OrganizationService {
     }
 
     public List<OrganizationMinDTO> getOrganizations() {
-        return organizationRepository.findOrganizationsWithUserRoles(userService.authenticated().getId());
+        UUID userId = userService.authenticated().getId();
+        return organizationRepository.findOrganizationsWithUserRoles(userId);
     }
 
     @Transactional
@@ -109,7 +111,9 @@ public class OrganizationService {
         Member member = memberService.getMember(slug);
         Organization organization = member.getOrganization();
 
-        if (member.getRole() != Role.ADMIN || !organization.getOwner().getId().equals(member.getUser().getId())) {
+        boolean canTransferOwnership = member.getRole() == Role.ADMIN
+                && organization.getOwner().equals(member.getUser());
+        if (!canTransferOwnership) {
             throw new UnauthorizedException("You're not allowed to transfer this organization ownership.");
         }
 

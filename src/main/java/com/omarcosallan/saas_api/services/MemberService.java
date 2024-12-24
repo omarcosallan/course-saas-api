@@ -2,6 +2,8 @@ package com.omarcosallan.saas_api.services;
 
 import com.omarcosallan.saas_api.domain.enums.Role;
 import com.omarcosallan.saas_api.domain.member.Member;
+import com.omarcosallan.saas_api.domain.organization.Organization;
+import com.omarcosallan.saas_api.domain.user.User;
 import com.omarcosallan.saas_api.dto.MemberResponseDTO;
 import com.omarcosallan.saas_api.dto.MembersResponseDTO;
 import com.omarcosallan.saas_api.dto.UpdateMemberRequestDTO;
@@ -84,5 +86,14 @@ public class MemberService {
         }
 
         memberRepository.deleteByIdAndOrganizationId(memberId, member.getOrganization().getId());
+    }
+
+    @Transactional
+    public Member create(User user, Organization org, Role role) {
+        Member member = new Member();
+        member.setUser(user);
+        member.setOrganization(org);
+        member.setRole(role);
+        return memberRepository.save(member);
     }
 }

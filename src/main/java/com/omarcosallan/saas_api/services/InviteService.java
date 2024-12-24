@@ -4,6 +4,7 @@ import com.omarcosallan.saas_api.domain.enums.Role;
 import com.omarcosallan.saas_api.domain.invite.Invite;
 import com.omarcosallan.saas_api.domain.member.Member;
 import com.omarcosallan.saas_api.domain.organization.Organization;
+import com.omarcosallan.saas_api.domain.user.User;
 import com.omarcosallan.saas_api.dto.CreateInviteRequestDTO;
 import com.omarcosallan.saas_api.dto.CreateInviteResponseDTO;
 import com.omarcosallan.saas_api.dto.InviteResponse;
@@ -30,6 +31,9 @@ public class InviteService {
 
     @Autowired
     private MemberService memberService;
+
+    @Autowired
+    private UserService userService;
 
     @Transactional
     public CreateInviteResponseDTO createInvite(String slug, @Valid CreateInviteRequestDTO body) {
@@ -92,5 +96,21 @@ public class InviteService {
                         .map(InvitesResponse.InviteMinDTO::new)
                         .collect(Collectors.toList())
         );
+    }
+
+    @Transactional
+    public void acceptInvite(UUID inviteId) {
+        User user = userService.authenticated();
+
+        Invite invite = inviteRepository.findById(inviteId)
+                .orElseThrow(() -> new BadRequestException("Invite not found or expired."));
+
+        if (!invite.getEmail().equals(user.getEmail())) {
+            throw new BadRequestException("This invite belongs to another user.");
+        }
+
+        memberService.create(user, invite.getOrganization(), invite.getRole());
+
+        inviteRepository.deleteById(invite.getId());
     }
 }
