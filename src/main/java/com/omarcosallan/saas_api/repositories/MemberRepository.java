@@ -15,4 +15,6 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
     List<Member> findByOrganizationIdOrderByRoleAsc(UUID id);
 
     Optional<Member> findByIdAndOrganizationId(UUID memberId, UUID id);
+
+    void deleteByIdAndOrganizationId(UUID memberId, UUID id);
 }

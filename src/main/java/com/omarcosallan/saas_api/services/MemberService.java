@@ -73,4 +73,16 @@ public class MemberService {
 
         memberRepository.save(updatingMember);
     }
+
+    @Transactional
+    public void removeMember(String slug, UUID memberId) {
+        Member member = getMember(slug);
+
+        boolean canDeleteUser = member.getRole() == Role.ADMIN;
+        if (!canDeleteUser) {
+            throw new UnauthorizedException("You're not allowed to remove this member from organization.");
+        }
+
+        memberRepository.deleteByIdAndOrganizationId(memberId, member.getOrganization().getId());
+    }
 }

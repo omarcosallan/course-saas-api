@@ -25,7 +25,13 @@ public class MemberController {
 
     @PutMapping(value = "/{memberId}")
     public ResponseEntity<Void> updateMember(@PathVariable("slug") String slug, @PathVariable("memberId") UUID memberId, @Valid @RequestBody UpdateMemberRequestDTO body) {
-        memberService.updateMember(slug, memberId,body);
+        memberService.updateMember(slug, memberId, body);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping(value = "/{memberId}")
+    public ResponseEntity<Void> removeMember(@PathVariable("slug") String slug, @PathVariable("memberId") UUID memberId) {
+        memberService.removeMember(slug, memberId);
         return ResponseEntity.noContent().build();
     }
 }
