@@ -3,12 +3,14 @@ package com.omarcosallan.saas_api.controllers;
 import com.omarcosallan.saas_api.dto.CreateProjectRequestDTO;
 import com.omarcosallan.saas_api.dto.CreateProjectResponseDTO;
 import com.omarcosallan.saas_api.dto.ProjectResponseDTO;
+import com.omarcosallan.saas_api.dto.ProjectsResponseDTO;
 import com.omarcosallan.saas_api.services.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -33,6 +35,12 @@ public class ProjectController {
     @GetMapping(value = "/{projectSlug}")
     public ResponseEntity<ProjectResponseDTO> getProject(@PathVariable("slug") String slug, @PathVariable("projectSlug") String projectSlug) {
         ProjectResponseDTO result = projectService.getProject(slug, projectSlug);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping
+    public ResponseEntity<ProjectsResponseDTO> getProjects(@PathVariable("slug") String slug) {
+        ProjectsResponseDTO result = projectService.getProjects(slug);
         return ResponseEntity.ok(result);
     }
 }

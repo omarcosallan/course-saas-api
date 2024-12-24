@@ -2,6 +2,7 @@ package com.omarcosallan.saas_api.dto;
 
 import com.omarcosallan.saas_api.domain.project.Project;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record ProjectResponseDTO(UUID id,
@@ -11,6 +12,7 @@ public record ProjectResponseDTO(UUID id,
                                  String avatarUrl,
                                  UUID organizationId,
                                  UUID ownerId,
+                                 LocalDateTime createdAt,
                                  OwnerResponseDTO owner) {
     public ProjectResponseDTO(Project project) {
         this(project.getId(),
@@ -20,6 +22,7 @@ public record ProjectResponseDTO(UUID id,
                 project.getAvatarUrl(),
                 project.getOrganization().getId(),
                 project.getOwner().getId(),
+                project.getCreatedAt(),
                 new OwnerResponseDTO(project.getOwner())
         );
     }

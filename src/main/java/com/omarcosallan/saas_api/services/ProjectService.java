@@ -8,6 +8,7 @@ import com.omarcosallan.saas_api.domain.user.User;
 import com.omarcosallan.saas_api.dto.CreateProjectRequestDTO;
 import com.omarcosallan.saas_api.dto.CreateProjectResponseDTO;
 import com.omarcosallan.saas_api.dto.ProjectResponseDTO;
+import com.omarcosallan.saas_api.dto.ProjectsResponseDTO;
 import com.omarcosallan.saas_api.exceptions.ProjectNotFoundException;
 import com.omarcosallan.saas_api.exceptions.UnauthorizedException;
 import com.omarcosallan.saas_api.repositories.ProjectRepository;
@@ -17,8 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
@@ -90,5 +93,20 @@ public class ProjectService {
         }
 
         return new ProjectResponseDTO(project.get());
+    }
+
+    public ProjectsResponseDTO getProjects(String slug) {
+        Member member = organizationService.getMember(slug);
+
+        boolean canGetProjects = member.getRole() == Role.MEMBER || member.getRole() == Role.ADMIN;
+        if (!canGetProjects) {
+            throw new UnauthorizedException("You're not allowed to see this projects.");
+        }
+
+        List<Project> projects = projectRepository.findAllByOrganizationId(member.getOrganization().getId());
+
+        List<ProjectResponseDTO> projectsDTO = projects.stream().map(ProjectResponseDTO::new).collect(Collectors.toList());
+
+        return new ProjectsResponseDTO(projectsDTO);
     }
 }
