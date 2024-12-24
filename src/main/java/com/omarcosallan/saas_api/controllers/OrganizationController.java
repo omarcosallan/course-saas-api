@@ -24,7 +24,7 @@ public class OrganizationController {
     }
 
     @GetMapping(value = "/{slug}")
-    public ResponseEntity<OrganizationDTO> getOrganization(@PathVariable String slug) {
+    public ResponseEntity<OrganizationDTO> getOrganization(@PathVariable("slug") String slug) {
         OrganizationDTO org = organizationService.getOrganization(slug);
         return ResponseEntity.ok(org);
     }
@@ -36,19 +36,19 @@ public class OrganizationController {
     }
 
     @PutMapping(value = "/{slug}")
-    public ResponseEntity<Void> updateOrganization(@PathVariable String slug, @Valid @RequestBody UpdateOrganizationRequestDTO body) {
+    public ResponseEntity<Void> updateOrganization(@PathVariable("slug") String slug, @Valid @RequestBody UpdateOrganizationRequestDTO body) {
         organizationService.updateOrganization(slug, body);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @DeleteMapping(value = "/{slug}")
-    public ResponseEntity<Void> shutdownOrganization(@PathVariable String slug) {
+    public ResponseEntity<Void> shutdownOrganization(@PathVariable("slug") String slug) {
         organizationService.shutdownOrganization(slug);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping(value = "/{slug}/owner")
-    public ResponseEntity<Void> transferOrganization(@PathVariable String slug, @Valid @RequestBody TransferOrganizationRequestDTO body) {
+    public ResponseEntity<Void> transferOrganization(@PathVariable("slug") String slug, @Valid @RequestBody TransferOrganizationRequestDTO body) {
         organizationService.transferOrganization(slug, body);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
