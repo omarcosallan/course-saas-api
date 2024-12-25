@@ -13,4 +13,6 @@ public interface ProjectRepository extends JpaRepository<Project, UUID> {
     Optional<Project> findBySlugAndOrganizationId(String slug, UUID id);
 
     List<Project> findAllByOrganizationId(UUID id);
+
+    Long countByOrganizationId(UUID organizationId);
 }

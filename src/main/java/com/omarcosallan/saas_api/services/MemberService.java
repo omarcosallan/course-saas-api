@@ -96,4 +96,8 @@ public class MemberService {
         member.setRole(role);
         return memberRepository.save(member);
     }
+
+    public Long countByOrganizationIdAndRoleNot(UUID organizationId, Role role) {
+        return memberRepository.countByOrganizationIdAndRoleNot(organizationId, role);
+    }
 }

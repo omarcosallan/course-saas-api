@@ -128,4 +128,8 @@ public class ProjectService {
 
         projectRepository.save(updatingProject);
     }
+
+    public Long countByOrganizationId(UUID organizationId) {
+        return projectRepository.countByOrganizationId(organizationId);
+    }
 }
