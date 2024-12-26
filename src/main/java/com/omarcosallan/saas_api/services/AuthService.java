@@ -3,6 +3,7 @@ package com.omarcosallan.saas_api.services;
 import com.omarcosallan.saas_api.domain.user.User;
 import com.omarcosallan.saas_api.dto.LoginResponseDTO;
 import com.omarcosallan.saas_api.dto.UserMinDTO;
+import com.omarcosallan.saas_api.dto.UserResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,8 +31,9 @@ public class AuthService {
         return new LoginResponseDTO(token, "7d");
     }
 
-    public UserMinDTO getProfile() {
+    public UserResponseDTO getProfile() {
         User user = userService.authenticated();
-        return new UserMinDTO(user.getId(), user.getName(), user.getEmail(), user.getAvatarUrl());
+        UserMinDTO userMinDTO = new UserMinDTO(user.getId(), user.getName(), user.getEmail(), user.getAvatarUrl());
+        return new UserResponseDTO(userMinDTO);
     }
 }

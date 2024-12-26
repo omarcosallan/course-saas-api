@@ -3,6 +3,7 @@ package com.omarcosallan.saas_api.controllers;
 import com.omarcosallan.saas_api.dto.LoginRequestDTO;
 import com.omarcosallan.saas_api.dto.LoginResponseDTO;
 import com.omarcosallan.saas_api.dto.UserMinDTO;
+import com.omarcosallan.saas_api.dto.UserResponseDTO;
 import com.omarcosallan.saas_api.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,8 @@ public class AuthController {
     }
 
     @GetMapping(value = "/profile")
-    public ResponseEntity<UserMinDTO> getProfile() {
-        UserMinDTO result = authService.getProfile();
+    public ResponseEntity<UserResponseDTO> getProfile() {
+        UserResponseDTO result = authService.getProfile();
         return ResponseEntity.ok(result);
     }
 }

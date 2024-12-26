@@ -46,7 +46,7 @@ public class InviteController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping(value = "/organizations/{slug}/invites/{inviteId}")
+    @DeleteMapping(value = "/organizations/{slug}/invites/{inviteId}")
     public ResponseEntity<Void> revokeInvite(@PathVariable("slug") String slug, @PathVariable("inviteId") UUID inviteId) {
         inviteService.revokeInvite(slug, inviteId);
         return ResponseEntity.noContent().build();

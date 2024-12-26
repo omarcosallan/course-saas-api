@@ -2,6 +2,8 @@ package com.omarcosallan.saas_api.services;
 
 import com.omarcosallan.saas_api.domain.user.User;
 import com.omarcosallan.saas_api.dto.CreateUserDTO;
+import com.omarcosallan.saas_api.dto.UserMinDTO;
+import com.omarcosallan.saas_api.dto.UserResponseDTO;
 import com.omarcosallan.saas_api.exceptions.UserAlreadyExistsException;
 import com.omarcosallan.saas_api.exceptions.UserNotFoundException;
 import com.omarcosallan.saas_api.repositories.UserRepository;
@@ -36,6 +38,7 @@ public class UserService {
         user.setName(body.name());
         user.setEmail(body.email());
         user.setPasswordHash(passwordHash);
+
 
         return userRepository.save(user);
     }

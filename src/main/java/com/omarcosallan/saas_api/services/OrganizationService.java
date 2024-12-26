@@ -9,12 +9,10 @@ import com.omarcosallan.saas_api.exceptions.OrganizationDomainAlreadyExistsExcep
 import com.omarcosallan.saas_api.exceptions.UnauthorizedException;
 import com.omarcosallan.saas_api.repositories.OrganizationRepository;
 import com.omarcosallan.saas_api.utils.SlugUtils;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,7 +29,7 @@ public class OrganizationService {
     private MemberService memberService;
 
     @Transactional
-    public CreateOrganizationResponseDTO createOrganization(@Valid CreateOrganizationRequestDTO body) {
+    public CreateOrganizationResponseDTO createOrganization(CreateOrganizationRequestDTO body) {
         User currentUser = userService.authenticated();
 
         if (body.domain() != null) {
@@ -58,14 +56,14 @@ public class OrganizationService {
         return new CreateOrganizationResponseDTO(organization.getId());
     }
 
-    public OrganizationDTO getOrganization(String slug) {
+    public OrganizationResponseDTO getOrganization(String slug) {
         Member member = memberService.getMember(slug);
-        return new OrganizationDTO(member.getOrganization());
+        return new OrganizationResponseDTO(new OrganizationDTO(member.getOrganization()));
     }
 
-    public List<OrganizationMinDTO> getOrganizations() {
+    public OrganizationsResponseDTO getOrganizations() {
         UUID userId = userService.authenticated().getId();
-        return organizationRepository.findOrganizationsWithUserRoles(userId);
+        return new OrganizationsResponseDTO(organizationRepository.findOrganizationsWithUserRoles(userId));
     }
 
     @Transactional
@@ -107,7 +105,7 @@ public class OrganizationService {
     }
 
     @Transactional
-    public void transferOrganization(String slug, @Valid TransferOrganizationRequestDTO body) {
+    public void transferOrganization(String slug, TransferOrganizationRequestDTO body) {
         Member member = memberService.getMember(slug);
         Organization organization = member.getOrganization();
 
@@ -127,5 +125,16 @@ public class OrganizationService {
         organization.setOwner(transferMembership.get().getUser());
 
         organizationRepository.save(organization);
+    }
+
+    public MembershipResponseDTO getMembership(String slug) {
+        Member member = memberService.getMember(slug);
+
+        return new MembershipResponseDTO(new MembershipDTO(
+                member.getId(),
+                member.getRole(),
+                member.getUser().getId(),
+                member.getOrganization().getId())
+        );
     }
 }

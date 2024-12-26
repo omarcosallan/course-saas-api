@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping(value = "/organizations")
 public class OrganizationController {
@@ -20,18 +18,18 @@ public class OrganizationController {
     @PostMapping
     public ResponseEntity<CreateOrganizationResponseDTO> createOrganization(@Valid @RequestBody CreateOrganizationRequestDTO body) {
         CreateOrganizationResponseDTO organizationId = organizationService.createOrganization(body);
-        return ResponseEntity.ok(organizationId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(organizationId);
     }
 
     @GetMapping(value = "/{slug}")
-    public ResponseEntity<OrganizationDTO> getOrganization(@PathVariable("slug") String slug) {
-        OrganizationDTO org = organizationService.getOrganization(slug);
+    public ResponseEntity<OrganizationResponseDTO> getOrganization(@PathVariable("slug") String slug) {
+        OrganizationResponseDTO org = organizationService.getOrganization(slug);
         return ResponseEntity.ok(org);
     }
 
     @GetMapping
-    public ResponseEntity<List<OrganizationMinDTO>> getOrganizations() {
-        List<OrganizationMinDTO> orgs = organizationService.getOrganizations();
+    public ResponseEntity<OrganizationsResponseDTO> getOrganizations() {
+        OrganizationsResponseDTO orgs = organizationService.getOrganizations();
         return ResponseEntity.ok(orgs);
     }
 
@@ -51,5 +49,11 @@ public class OrganizationController {
     public ResponseEntity<Void> transferOrganization(@PathVariable("slug") String slug, @Valid @RequestBody TransferOrganizationRequestDTO body) {
         organizationService.transferOrganization(slug, body);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping(value = "/{slug}/membership")
+    public ResponseEntity<MembershipResponseDTO> getMembership(@PathVariable("slug") String slug) {
+        MembershipResponseDTO result = organizationService.getMembership(slug);
+        return ResponseEntity.ok(result);
     }
 }
